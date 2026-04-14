@@ -11,9 +11,9 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		9A0D389E2F8E1588002CC717 /* MediaGalleryv4 */ = {
+		9AC0EB412F8E676B00EC0279 /* MediaGallery */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = MediaGalleryv4;
+			path = MediaGallery;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -32,8 +32,8 @@
 		9A0D38932F8E1588002CC717 = {
 			isa = PBXGroup;
 			children = (
-				9A0D389E2F8E1588002CC717 /* MediaGalleryv4 */,
 				9A0D389D2F8E1588002CC717 /* Products */,
+				9AC0EB412F8E676B00EC0279 /* MediaGallery */,
 			);
 			sourceTree = "<group>";
 		};
@@ -61,7 +61,7 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				9A0D389E2F8E1588002CC717 /* MediaGalleryv4 */,
+				9AC0EB412F8E676B00EC0279 /* MediaGallery */,
 			);
 			name = MediaGalleryv4;
 			packageProductDependencies = (
@@ -85,7 +85,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 9A0D38972F8E1588002CC717 /* Build configuration list for PBXProject "MediaGalleryv4" */;
+			buildConfigurationList = 9A0D38972F8E1588002CC717 /* Build configuration list for PBXProject "MediaGallery" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -309,7 +309,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		9A0D38972F8E1588002CC717 /* Build configuration list for PBXProject "MediaGalleryv4" */ = {
+		9A0D38972F8E1588002CC717 /* Build configuration list for PBXProject "MediaGallery" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				9A0D38AA2F8E1589002CC717 /* Debug */,
