@@ -9,19 +9,18 @@ struct GalleryGridItemView: View {
     let imageData: Data
 
     var body: some View {
-        Group {
+        ZStack {
             if let uiImage = UIImage(data: imageData) {
                 Image(uiImage: uiImage)
                     .resizable()
                     .scaledToFill()
-                    .frame(height: 82)
-                    .frame(maxWidth: .infinity)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .clipped()
             } else {
                 Rectangle()
-                    .fill(Color.gray.opacity(0.15))
-                    .frame(height: 82)
+                    .fill(Color.secondary.opacity(0.15))
             }
         }
+        .aspectRatio(1, contentMode: .fit)
     }
 }

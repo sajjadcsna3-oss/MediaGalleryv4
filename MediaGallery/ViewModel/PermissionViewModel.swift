@@ -10,25 +10,38 @@ import Photos
 import Combine
 @MainActor
 final class PermissionViewModel: ObservableObject {
+    enum DeniedType {
+        case camera
+        case photos
+    }
+
     @Published var showDeniedAlert = false
+    @Published var deniedType: DeniedType = .camera
 
     private let permissionService = PermissionService()
 
-    func requestCameraOnly() async -> Bool {
+    func requestCamera() async -> Bool {
         let granted = await permissionService.requestCameraAccess()
+        if !granted {
+            deniedType = .camera
+            showDeniedAlert = true
+        }
         return granted
     }
 
-    func requestPhotosOnly() async -> Bool {
+    func requestPhotos() async -> Bool {
         let status = await permissionService.requestPhotoAccess()
-        return status == .authorized || status == .limited
+        let allowed = (status == .authorized || status == .limited)
+        if !allowed {
+            deniedType = .photos
+            showDeniedAlert = true
+        }
+        return allowed
     }
 
     func openSettings() {
         guard let url = URL(string: UIApplication.openSettingsURLString),
-              UIApplication.shared.canOpenURL(url) else {
-            return
-        }
+              UIApplication.shared.canOpenURL(url) else { return }
         UIApplication.shared.open(url)
     }
 }

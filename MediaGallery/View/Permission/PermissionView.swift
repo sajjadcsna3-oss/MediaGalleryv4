@@ -11,130 +11,68 @@ struct PermissionView: View {
     @StateObject private var viewModel = PermissionViewModel()
 
     var body: some View {
-        ZStack {
-            AppColors.screenBackground
-                .ignoresSafeArea()
+        VStack(spacing: 18) {
+            Spacer()
 
-            VStack {
-                Spacer()
+            Image(systemName: "photo.on.rectangle.angled")
+                .font(.system(size: 54, weight: .regular))
+                .foregroundStyle(AppColors.primary)
 
-                VStack(spacing: 0) {
-                    Text("Welcome to Photo Gallery")
-                        .font(.system(size: 17, weight: .bold))
-                        .foregroundStyle(AppColors.textPrimary)
-                        .padding(.top, 44)
+            Text("Allow Access")
+                .font(.title2.weight(.bold))
 
-                    HStack(spacing: 18) {
-                        ZStack {
-                            RoundedRectangle(cornerRadius: 12)
-                                .fill(Color.white)
-                                .frame(width: 74, height: 74)
-                                .shadow(color: .black.opacity(0.08), radius: 6, x: 0, y: 4)
-                            Image(systemName: "camera.fill")
-                                .font(.system(size: 38))
-                                .foregroundStyle(Color(red: 53/255, green: 61/255, blue: 80/255))
-                        }
+            Text("We need access to your Photos and Camera to import, capture, crop, and save images in your gallery.")
+                .font(.body)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 28)
 
-                        Image(systemName: "play.fill")
-                            .font(.system(size: 15, weight: .semibold))
-                            .foregroundStyle(Color.gray.opacity(0.7))
-
-                        ZStack {
-                            RoundedRectangle(cornerRadius: 12)
-                                .fill(Color.white)
-                                .frame(width: 74, height: 74)
-                                .shadow(color: .black.opacity(0.08), radius: 6, x: 0, y: 4)
-
-                            Image(systemName: "photo.on.rectangle.angled.fill")
-                                .font(.system(size: 38))
-                                .foregroundStyle(
-                                    LinearGradient(
-                                        colors: [.pink, .orange, .yellow, .green, .blue, .purple],
-                                        startPoint: .topLeading,
-                                        endPoint: .bottomTrailing
-                                    )
-                                )
-                        }
+            VStack(spacing: 12) {
+                Button {
+                    Task {
+                        let granted = await viewModel.requestPhotos()
+                        if granted { router.replace(with: .gallery) }
                     }
-                    .padding(.top, 26)
-
-                    Text("This app needs access to your\nCamera and Photo Library to import\nand take photos.")
-                        .font(.system(size: 15, weight: .regular))
-                        .foregroundStyle(AppColors.textPrimary.opacity(0.92))
-                        .multilineTextAlignment(.leading)
-                        .lineSpacing(7)
-                        .padding(.top, 28)
-                        .padding(.horizontal, 30)
-
-                    VStack(spacing: 10) {
-                        Button {
-                            Task {
-                                let granted = await viewModel.requestCameraOnly()
-                                if granted {
-                                    router.replace(with: .gallery)
-                                } else {
-                                    viewModel.showDeniedAlert = true
-                                }
-                            }
-                        } label: {
-                            permissionButton(title: "Allow Access to Camera")
-                        }
-
-                        Button {
-                            Task {
-                                let granted = await viewModel.requestPhotosOnly()
-                                if granted {
-                                    router.replace(with: .gallery)
-                                } else {
-                                    viewModel.showDeniedAlert = true
-                                }
-                            }
-                        } label: {
-                            permissionButton(title: "Allow Access to Photo Library")
-                        }
-                    }
-                    .padding(.horizontal, 20)
-                    .padding(.top, 24)
-
-                    Text("You can enable access in Settings if denied.")
-                        .font(.system(size: 13))
-                        .foregroundStyle(AppColors.textSecondary)
-                        .padding(.top, 18)
-                        .padding(.bottom, 24)
+                } label: {
+                    Text("Allow Photo Library")
+                        .frame(maxWidth: .infinity)
                 }
-                .frame(width: 390)
-                .background(AppColors.cardBackground)
-                .clipShape(RoundedRectangle(cornerRadius: 34))
-                .shadow(color: .black.opacity(0.08), radius: 20, x: 0, y: 10)
+                .buttonStyle(.borderedProminent)
+                .tint(AppColors.primary)
 
-                Spacer()
+                Button {
+                    Task {
+                        let granted = await viewModel.requestCamera()
+                        if granted { router.replace(with: .gallery) }
+                    }
+                } label: {
+                    Text("Allow Camera")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.bordered)
             }
             .padding(.horizontal, 24)
+            .padding(.top, 8)
+
+            Spacer()
+
+            Text("If you denied access, you can enable it later in Settings.")
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+                .padding(.bottom, 18)
         }
+        .background(AppColors.screenBackground.ignoresSafeArea())
         .navigationBarBackButtonHidden(true)
         .alert("Permission Denied", isPresented: $viewModel.showDeniedAlert) {
-            Button("Settings") {
-                viewModel.openSettings()
-            }
+            Button("Settings") { viewModel.openSettings() }
             Button("Cancel", role: .cancel) { }
         } message: {
-            Text("Please enable Camera or Photo Library access in Settings.")
+            switch viewModel.deniedType {
+            case .camera:
+                Text("Camera access is denied. Please enable Camera access in Settings.")
+            case .photos:
+                Text("Photo Library access is denied. Please enable Photos access in Settings.")
+            }
         }
-    }
-
-    private func permissionButton(title: String) -> some View {
-        Text(title)
-            .font(.system(size: 16, weight: .medium))
-            .foregroundStyle(.white)
-            .frame(width: 300)
-            .frame(height: 50)
-            .background(
-                LinearGradient(
-                    colors: [AppColors.primaryLight, AppColors.primary],
-                    startPoint: .leading,
-                    endPoint: .trailing
-                )
-            )
-            .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 }

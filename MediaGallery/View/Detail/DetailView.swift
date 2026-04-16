@@ -3,7 +3,8 @@
 //  MediaGallery
 //
 //  Created by Mac Mini on 06/04/2026.
-//
+
+
 import SwiftUI
 import SwiftData
 
@@ -16,6 +17,8 @@ struct DetailView: View {
 
     @StateObject private var viewModel = DetailViewModel()
 
+    @State private var showDeleteConfirm = false
+
     private var selectedItem: GalleryImage? {
         images.first(where: { $0.id == imageId })
     }
@@ -25,43 +28,49 @@ struct DetailView: View {
         return UIImage(data: data)
     }
 
-    // If user cropped but not saved yet, show that image on UI
     private var displayImage: UIImage? {
         viewModel.newImage ?? selectedUIImage
     }
 
     var body: some View {
         ZStack {
-            AppColors.screenBackground
-                .ignoresSafeArea()
+            Color.black.ignoresSafeArea()
 
-            Group {
-                if let item = selectedItem,
-                   let image = displayImage {
-                    contentView(item: item, image: image)
-                } else {
-                    Text("Image not found")
-                        .foregroundStyle(.secondary)
-                }
+            if let item = selectedItem, let image = displayImage {
+                viewer(item: item, image: image)
+            } else {
+                Text("Image not found")
+                    .foregroundStyle(.white.opacity(0.75))
             }
         }
         .navigationBarBackButtonHidden(true)
-        .sheet(isPresented: $viewModel.showPicker) {
-            ImagePickerSheet(sourceType: viewModel.pickerSourceType) { image in
-                viewModel.handlePickedImage(image)
+        .toolbar(.hidden, for: .navigationBar)
+        .confirmationDialog(
+            "Delete Photo?",
+            isPresented: $showDeleteConfirm,
+            titleVisibility: .visible
+        ) {
+            Button("Delete", role: .destructive) {
+                if let item = selectedItem {
+                    viewModel.delete(item: item, context: context)
+                    router.pop() // close detail
+                }
             }
+            Button("Cancel", role: .cancel) { }
+        } message: {
+            Text("This action cannot be undone.")
         }
         .sheet(isPresented: $viewModel.showShareSheet) {
-            if let image = viewModel.shareImage {
-                ActivityViewController(image: image)
+            if let img = viewModel.shareImage {
+                ActivityViewController(image: img)
             }
         }
         .sheet(isPresented: $viewModel.showCropper) {
             if let cropImage = viewModel.imageForCrop {
                 ImageCropperView(
                     image: cropImage,
-                    onCropped: { croppedImage in
-                        viewModel.handleCroppedImage(croppedImage)
+                    onCropped: { cropped in
+                        viewModel.handleCroppedImage(cropped)
                     },
                     onCancel: {
                         viewModel.cancelCrop()
@@ -69,116 +78,206 @@ struct DetailView: View {
                 )
             }
         }
-        .alert("Camera Not Available", isPresented: $viewModel.showCameraUnavailableAlert) {
-            Button("OK", role: .cancel) { }
-        } message: {
-            Text("This device does not support camera.")
-        }
     }
 
-    private func contentView(item: GalleryImage, image: UIImage) -> some View {
-        VStack {
-            Spacer()
+    private func viewer(item: GalleryImage, image: UIImage) -> some View {
+        VStack(spacing: 0) {
+            topBar(item: item, currentImage: image)
 
-            VStack(spacing: 0) {
-                HStack {
-                    Button {
-                        router.pop()
-                    } label: {
-                        Image(systemName: "chevron.left")
-                            .font(.system(size: 26, weight: .semibold))
-                            .foregroundStyle(.white)
-                    }
+            Spacer(minLength: 0)
 
-                    Spacer()
-                }
-                .padding(.horizontal, 16)
-                .padding(.top, 16)
+            Image(uiImage: image)
+                .resizable()
+                .scaledToFit()
+                .frame(maxWidth: .infinity)
+                .padding(.horizontal, 10)
 
-                Spacer()
+            Spacer(minLength: 0)
 
-                Image(uiImage: image)
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: 260, height: 340)
-                    .clipped()
-                    .padding(.top, 10)
-
-                Spacer()
-
-                bottomToolbar(item: item, image: image)
+            if viewModel.isEditing {
+                editToolsBar(item: item, currentImage: image)
+            } else {
+                normalBottomBar(currentImage: image)
             }
-            .frame(width: 300, height: 565)
-            .background(
-                LinearGradient(
-                    colors: [AppColors.detailBackgroundTop, AppColors.detailBackgroundBottom],
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
-            )
-            .clipShape(RoundedRectangle(cornerRadius: 34))
-            .shadow(color: .black.opacity(0.18), radius: 20, x: 0, y: 12)
-
-            Spacer()
         }
     }
 
-    private func bottomToolbar(item: GalleryImage, image: UIImage) -> some View {
+    private func topBar(item: GalleryImage, currentImage: UIImage) -> some View {
         HStack {
-            Spacer()
-
             Button {
-                // Crop CURRENT displayed image (original or pending cropped)
-                viewModel.startCropCurrentImage(image)
+                // If editing, cancel edits on back (Photos-like)
+                if viewModel.isEditing {
+                    viewModel.cancelEditing()
+                }
+                router.pop()
             } label: {
-                toolbarItem(icon: "crop", title: "Crop")
+                Image(systemName: "chevron.left")
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundStyle(.white)
+                    .padding(10)
+                    .background(.black.opacity(0.35))
+                    .clipShape(Circle())
             }
 
             Spacer()
 
-            Rectangle()
-                .fill(Color.white.opacity(0.12))
-                .frame(width: 1, height: 30)
-
-            Spacer()
-
+            // Delete always visible (as per requirement)
             Button {
-                viewModel.share(image: image)
+                showDeleteConfirm = true
             } label: {
-                toolbarItem(icon: "arrowshape.turn.up.right.fill", title: "Share")
+                Image(systemName: "trash")
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundStyle(.white)
+                    .padding(10)
+                    .background(.black.opacity(0.35))
+                    .clipShape(Circle())
             }
 
-            Spacer()
-
-            Rectangle()
-                .fill(Color.white.opacity(0.12))
-                .frame(width: 1, height: 30)
-
-            Spacer()
-
-            Button {
-                viewModel.updateImageIfNeeded(item: item, context: context)
-            } label: {
-                toolbarItem(icon: "square.and.arrow.down.fill", title: "Save")
+            // Edit / Save toggle button
+            if viewModel.isEditing {
+                Button {
+                    viewModel.saveEditsIfNeeded(item: item, context: context)
+                } label: {
+                    Text("Save")
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 9)
+                        .background(.blue.opacity(0.95))
+                        .clipShape(Capsule())
+                }
+            } else {
+                Button {
+                    viewModel.toggleEditMode(currentImage: currentImage)
+                } label: {
+                    Text("Edit")
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 9)
+                        .background(.black.opacity(0.35))
+                        .clipShape(Capsule())
+                }
             }
-            .opacity(viewModel.newImage == nil ? 0.55 : 1.0)
-            .disabled(viewModel.newImage == nil)
-
-            Spacer()
         }
-        .frame(height: 82)
-        .background(Color.black.opacity(0.08))
+        .padding(.horizontal, 14)
+        .padding(.top, 12)
     }
 
-    private func toolbarItem(icon: String, title: String) -> some View {
-        VStack(spacing: 7) {
-            Image(systemName: icon)
-                .font(.system(size: 22))
-                .foregroundStyle(.white)
+    private func normalBottomBar(currentImage: UIImage) -> some View {
+        HStack {
+            Button {
+                viewModel.share(image: currentImage)
+            } label: {
+                Image(systemName: "square.and.arrow.up")
+                    .font(.system(size: 22, weight: .semibold))
+                    .foregroundStyle(.white)
+                    .frame(width: 44, height: 44)
+            }
 
-            Text(title)
-                .font(.system(size: 15, weight: .medium))
-                .foregroundStyle(.white)
+            Spacer()
+
+            // Optional: quick crop even without edit mode (آپ چاہیں تو remove کر دیں)
+            Button {
+                viewModel.startCropCurrentImage(currentImage)
+            } label: {
+                Image(systemName: "crop")
+                    .font(.system(size: 22, weight: .semibold))
+                    .foregroundStyle(.white)
+                    .frame(width: 44, height: 44)
+            }
         }
+        .padding(.horizontal, 36)
+        .padding(.vertical, 16)
+        .background(.black.opacity(0.6))
+    }
+
+    private func editToolsBar(item: GalleryImage, currentImage: UIImage) -> some View {
+        VStack(spacing: 10) {
+            // Tools row: Crop / Resize apply
+            HStack(spacing: 18) {
+                Button {
+                    viewModel.startCropCurrentImage(currentImage)
+                } label: {
+                    toolPill(title: "Crop", systemName: "crop")
+                }
+
+                Menu {
+                    ForEach(ImageResizeService.Preset.allCases) { preset in
+                        Button(preset.rawValue) {
+                            viewModel.selectedResize = preset
+                            viewModel.applyResize(on: currentImage)
+                        }
+                    }
+                } label: {
+                    toolPill(title: "Resize", systemName: "arrow.up.left.and.arrow.down.right")
+                }
+            }
+            .padding(.top, 6)
+
+            // Filters horizontal strip
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 10) {
+                    ForEach(FilterType.allCases) { filter in
+                        Button {
+                            viewModel.selectedFilter = filter
+                            viewModel.applySelectedFilter(on: currentImage)
+                        } label: {
+                            Text(filter.rawValue)
+                                .font(.system(size: 13, weight: .semibold))
+                                .foregroundStyle(filter == viewModel.selectedFilter ? .black : .white)
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 8)
+                                .background(filter == viewModel.selectedFilter ? .white : .white.opacity(0.18))
+                                .clipShape(Capsule())
+                        }
+                    }
+                }
+                .padding(.horizontal, 14)
+                .padding(.vertical, 8)
+            }
+
+            // Bottom actions
+            HStack {
+                Button {
+                    viewModel.cancelEditing()
+                } label: {
+                    Text("Cancel")
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 10)
+                        .background(.white.opacity(0.16))
+                        .clipShape(Capsule())
+                }
+
+                Spacer()
+
+                Button {
+                    viewModel.share(image: currentImage)
+                } label: {
+                    Image(systemName: "square.and.arrow.up")
+                        .font(.system(size: 20, weight: .semibold))
+                        .foregroundStyle(.white)
+                        .frame(width: 44, height: 44)
+                }
+            }
+            .padding(.horizontal, 14)
+            .padding(.bottom, 8)
+        }
+        .background(.black.opacity(0.75))
+    }
+
+    private func toolPill(title: String, systemName: String) -> some View {
+        HStack(spacing: 8) {
+            Image(systemName: systemName)
+            Text(title)
+        }
+        .font(.system(size: 14, weight: .semibold))
+        .foregroundStyle(.white)
+        .padding(.horizontal, 14)
+        .padding(.vertical, 10)
+        .background(.white.opacity(0.18))
+        .clipShape(Capsule())
     }
 }

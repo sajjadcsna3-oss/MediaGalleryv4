@@ -11,3 +11,12 @@ enum AppRoute: Hashable {
     case permission
     case detail(UUID)
 }
+enum FilterType: String, CaseIterable, Identifiable {
+    case original = "Original"
+    case noir = "Noir"
+    case chrome = "Chrome"
+    case instant = "Instant"
+    case sepia = "Sepia"
+
+    var id: String { rawValue }
+}
