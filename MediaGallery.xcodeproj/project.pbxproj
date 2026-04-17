@@ -6,14 +6,18 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		9AC0EBA82F8E6C2800EC0279 /* Mantis in Frameworks */ = {isa = PBXBuildFile; productRef = 9AC0EBA72F8E6C2800EC0279 /* Mantis */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		9A0D389C2F8E1588002CC717 /* MediaGalleryv4.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MediaGalleryv4.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		9A0D389E2F8E1588002CC717 /* MediaGalleryv4 */ = {
+		9AC0EB412F8E676B00EC0279 /* MediaGallery */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = MediaGalleryv4;
+			path = MediaGallery;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -23,6 +27,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9AC0EBA82F8E6C2800EC0279 /* Mantis in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -32,8 +37,8 @@
 		9A0D38932F8E1588002CC717 = {
 			isa = PBXGroup;
 			children = (
-				9A0D389E2F8E1588002CC717 /* MediaGalleryv4 */,
 				9A0D389D2F8E1588002CC717 /* Products */,
+				9AC0EB412F8E676B00EC0279 /* MediaGallery */,
 			);
 			sourceTree = "<group>";
 		};
@@ -61,10 +66,11 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				9A0D389E2F8E1588002CC717 /* MediaGalleryv4 */,
+				9AC0EB412F8E676B00EC0279 /* MediaGallery */,
 			);
 			name = MediaGalleryv4;
 			packageProductDependencies = (
+				9AC0EBA72F8E6C2800EC0279 /* Mantis */,
 			);
 			productName = MediaGalleryv4;
 			productReference = 9A0D389C2F8E1588002CC717 /* MediaGalleryv4.app */;
@@ -85,7 +91,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 9A0D38972F8E1588002CC717 /* Build configuration list for PBXProject "MediaGalleryv4" */;
+			buildConfigurationList = 9A0D38972F8E1588002CC717 /* Build configuration list for PBXProject "MediaGallery" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -94,6 +100,9 @@
 			);
 			mainGroup = 9A0D38932F8E1588002CC717;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				9AC0EBA62F8E6C2800EC0279 /* XCRemoteSwiftPackageReference "Mantis" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 9A0D389D2F8E1588002CC717 /* Products */;
 			projectDirPath = "";
@@ -253,6 +262,9 @@
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSCameraUsageDescription = "";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "We need photo library access for saving and managing images.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -284,6 +296,9 @@
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSCameraUsageDescription = "";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "We need photo library access for saving and managing images.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -309,7 +324,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		9A0D38972F8E1588002CC717 /* Build configuration list for PBXProject "MediaGalleryv4" */ = {
+		9A0D38972F8E1588002CC717 /* Build configuration list for PBXProject "MediaGallery" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				9A0D38AA2F8E1589002CC717 /* Debug */,
@@ -328,6 +343,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		9AC0EBA62F8E6C2800EC0279 /* XCRemoteSwiftPackageReference "Mantis" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/guoyingtao/Mantis.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.7.5;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		9AC0EBA72F8E6C2800EC0279 /* Mantis */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 9AC0EBA62F8E6C2800EC0279 /* XCRemoteSwiftPackageReference "Mantis" */;
+			productName = Mantis;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 9A0D38942F8E1588002CC717 /* Project object */;
 }
