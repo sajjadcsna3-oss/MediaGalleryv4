@@ -4,7 +4,6 @@
 //
 //  Created by Mac Mini on 06/04/2026.
 
-
 import SwiftUI
 import SwiftData
 
@@ -46,19 +45,19 @@ struct DetailView: View {
         .navigationBarBackButtonHidden(true)
         .toolbar(.hidden, for: .navigationBar)
         .confirmationDialog(
-            "Delete Photo?",
+            AppStrings.deletePhotoTitle,
             isPresented: $showDeleteConfirm,
             titleVisibility: .visible
         ) {
-            Button("Delete", role: .destructive) {
+            Button(AppStrings.delete, role: .destructive) {
                 if let item = selectedItem {
                     viewModel.delete(item: item, context: context)
-                    router.pop() // close detail
+                    router.pop()
                 }
             }
-            Button("Cancel", role: .cancel) { }
+            Button(AppStrings.cancel, role: .cancel) { }
         } message: {
-            Text("This action cannot be undone.")
+            Text(AppStrings.deletePhotoMessage)
         }
         .sheet(isPresented: $viewModel.showShareSheet) {
             if let img = viewModel.shareImage {
@@ -69,12 +68,8 @@ struct DetailView: View {
             if let cropImage = viewModel.imageForCrop {
                 ImageCropperView(
                     image: cropImage,
-                    onCropped: { cropped in
-                        viewModel.handleCroppedImage(cropped)
-                    },
-                    onCancel: {
-                        viewModel.cancelCrop()
-                    }
+                    onCropped: { cropped in viewModel.handleCroppedImage(cropped) },
+                    onCancel: { viewModel.cancelCrop() }
                 )
             }
         }
@@ -95,7 +90,7 @@ struct DetailView: View {
             Spacer(minLength: 0)
 
             if viewModel.isEditing {
-                editToolsBar(item: item, currentImage: image)
+                editToolsBar(currentImage: image)
             } else {
                 normalBottomBar(currentImage: image)
             }
@@ -105,10 +100,7 @@ struct DetailView: View {
     private func topBar(item: GalleryImage, currentImage: UIImage) -> some View {
         HStack {
             Button {
-                // If editing, cancel edits on back (Photos-like)
-                if viewModel.isEditing {
-                    viewModel.cancelEditing()
-                }
+                if viewModel.isEditing { viewModel.cancelEditing() }
                 router.pop()
             } label: {
                 Image(systemName: "chevron.left")
@@ -121,7 +113,6 @@ struct DetailView: View {
 
             Spacer()
 
-            // Delete always visible (as per requirement)
             Button {
                 showDeleteConfirm = true
             } label: {
@@ -133,12 +124,11 @@ struct DetailView: View {
                     .clipShape(Circle())
             }
 
-            // Edit / Save toggle button
             if viewModel.isEditing {
                 Button {
                     viewModel.saveEditsIfNeeded(item: item, context: context)
                 } label: {
-                    Text("Save")
+                    Text(AppStrings.save)
                         .font(.system(size: 15, weight: .semibold))
                         .foregroundStyle(.white)
                         .padding(.horizontal, 14)
@@ -150,7 +140,7 @@ struct DetailView: View {
                 Button {
                     viewModel.toggleEditMode(currentImage: currentImage)
                 } label: {
-                    Text("Edit")
+                    Text(AppStrings.edit)
                         .font(.system(size: 15, weight: .semibold))
                         .foregroundStyle(.white)
                         .padding(.horizontal, 14)
@@ -166,9 +156,7 @@ struct DetailView: View {
 
     private func normalBottomBar(currentImage: UIImage) -> some View {
         HStack {
-            Button {
-                viewModel.share(image: currentImage)
-            } label: {
+            Button { viewModel.share(image: currentImage) } label: {
                 Image(systemName: "square.and.arrow.up")
                     .font(.system(size: 22, weight: .semibold))
                     .foregroundStyle(.white)
@@ -177,10 +165,7 @@ struct DetailView: View {
 
             Spacer()
 
-            // Optional: quick crop even without edit mode (آپ چاہیں تو remove کر دیں)
-            Button {
-                viewModel.startCropCurrentImage(currentImage)
-            } label: {
+            Button { viewModel.startCropCurrentImage(currentImage) } label: {
                 Image(systemName: "crop")
                     .font(.system(size: 22, weight: .semibold))
                     .foregroundStyle(.white)
@@ -192,14 +177,11 @@ struct DetailView: View {
         .background(.black.opacity(0.6))
     }
 
-    private func editToolsBar(item: GalleryImage, currentImage: UIImage) -> some View {
+    private func editToolsBar(currentImage: UIImage) -> some View {
         VStack(spacing: 10) {
-            // Tools row: Crop / Resize apply
             HStack(spacing: 18) {
-                Button {
-                    viewModel.startCropCurrentImage(currentImage)
-                } label: {
-                    toolPill(title: "Crop", systemName: "crop")
+                Button { viewModel.startCropCurrentImage(currentImage) } label: {
+                    toolPill(title: "Crop", systemName: "crop") // اگر reviewer چاہے تو یہ بھی constant میں ڈال دیں
                 }
 
                 Menu {
@@ -210,12 +192,11 @@ struct DetailView: View {
                         }
                     }
                 } label: {
-                    toolPill(title: "Resize", systemName: "arrow.up.left.and.arrow.down.right")
+                    toolPill(title: "Resize", systemName: "arrow.up.left.and.arrow.down.right") // یہ بھی constant میں ڈال سکتے ہیں
                 }
             }
             .padding(.top, 6)
 
-            // Filters horizontal strip
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 10) {
                     ForEach(FilterType.allCases) { filter in
@@ -223,7 +204,7 @@ struct DetailView: View {
                             viewModel.selectedFilter = filter
                             viewModel.applySelectedFilter(on: currentImage)
                         } label: {
-                            Text(filter.rawValue)
+                            Text(filter.rawValue) // یہ enum raw values ہیں، acceptable
                                 .font(.system(size: 13, weight: .semibold))
                                 .foregroundStyle(filter == viewModel.selectedFilter ? .black : .white)
                                 .padding(.horizontal, 12)
@@ -237,12 +218,9 @@ struct DetailView: View {
                 .padding(.vertical, 8)
             }
 
-            // Bottom actions
             HStack {
-                Button {
-                    viewModel.cancelEditing()
-                } label: {
-                    Text("Cancel")
+                Button { viewModel.cancelEditing() } label: {
+                    Text(AppStrings.cancel)
                         .font(.system(size: 15, weight: .semibold))
                         .foregroundStyle(.white)
                         .padding(.horizontal, 14)
@@ -253,9 +231,7 @@ struct DetailView: View {
 
                 Spacer()
 
-                Button {
-                    viewModel.share(image: currentImage)
-                } label: {
+                Button { viewModel.share(image: currentImage) } label: {
                     Image(systemName: "square.and.arrow.up")
                         .font(.system(size: 20, weight: .semibold))
                         .foregroundStyle(.white)

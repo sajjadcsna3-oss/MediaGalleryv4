@@ -46,12 +46,11 @@ struct GalleryView: View {
                 }
             }
             .background(Color.white)
-            .navigationTitle("Gallery")
+            .navigationTitle(AppStrings.galleryTitle)
             .navigationBarTitleDisplayMode(.large)
             .navigationBarBackButtonHidden(true)
             .toolbar {
                 ToolbarItemGroup(placement: .topBarTrailing) {
-                    // PLUS button (Import)
                     Button {
                         viewModel.openPhotoLibrary()
                     } label: {
@@ -62,15 +61,14 @@ struct GalleryView: View {
                             .background(Color.black.opacity(0.85))
                             .clipShape(Circle())
                     }
-                    .accessibilityLabel("Import Photo")
+                    .accessibilityLabel(AppStrings.allowPhotoLibrary)
 
-                    // Camera remains
                     Button {
                         viewModel.openCamera()
                     } label: {
                         Image(systemName: "camera")
                     }
-                    .accessibilityLabel("Take Photo")
+                    .accessibilityLabel(AppStrings.allowCamera)
                 }
             }
             .sheet(isPresented: $viewModel.showPicker) {
@@ -89,32 +87,32 @@ struct GalleryView: View {
                     )
                 }
             }
-            .alert("Camera Not Available", isPresented: $viewModel.showCameraUnavailableAlert) {
-                Button("OK", role: .cancel) { }
+            .alert(AppStrings.cameraNotAvailableTitle, isPresented: $viewModel.showCameraUnavailableAlert) {
+                Button(AppStrings.ok, role: .cancel) { }
             } message: {
-                Text("This device does not support camera.")
+                Text(AppStrings.cameraNotAvailableMessage)
             }
-            .alert("Photo Access Needed", isPresented: $viewModel.showPhotoPermissionAlert) {
-                Button("Settings") { viewModel.openSettings() }
-                Button("OK", role: .cancel) { }
+            .alert(AppStrings.photoAccessNeededTitle, isPresented: $viewModel.showPhotoPermissionAlert) {
+                Button(AppStrings.settings) { viewModel.openSettings() }
+                Button(AppStrings.ok, role: .cancel) { }
             } message: {
-                Text("Please allow photo library access to import photos.")
+                Text(AppStrings.photoAccessNeededMessage)
             }
-            .alert("Camera Access Needed", isPresented: $viewModel.showCameraPermissionAlert) {
-                Button("Settings") { viewModel.openSettings() }
-                Button("OK", role: .cancel) { }
+            .alert(AppStrings.cameraAccessNeededTitle, isPresented: $viewModel.showCameraPermissionAlert) {
+                Button(AppStrings.settings) { viewModel.openSettings() }
+                Button(AppStrings.ok, role: .cancel) { }
             } message: {
-                Text("Please allow camera access to take photos.")
+                Text(AppStrings.cameraAccessNeededMessage)
             }
         }
     }
 
     private var emptyState: some View {
         VStack(spacing: 10) {
-            Text("No images yet")
+            Text(AppStrings.noImagesTitle)
                 .font(.title3.weight(.semibold))
 
-            Text("Tap + to import or use Camera.")
+            Text(AppStrings.noImagesMessage)
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)

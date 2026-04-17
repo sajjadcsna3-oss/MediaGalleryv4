@@ -18,10 +18,10 @@ struct PermissionView: View {
                 .font(.system(size: 54, weight: .regular))
                 .foregroundStyle(AppColors.primary)
 
-            Text("Allow Access")
+            Text(AppStrings.allowAccessTitle)
                 .font(.title2.weight(.bold))
 
-            Text("We need access to your Photos and Camera to import, capture, crop, and save images in your gallery.")
+            Text(AppStrings.allowAccessMessage)
                 .font(.body)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
@@ -34,7 +34,7 @@ struct PermissionView: View {
                         if granted { router.replace(with: .gallery) }
                     }
                 } label: {
-                    Text("Allow Photo Library")
+                    Text(AppStrings.allowPhotoLibrary)
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.borderedProminent)
@@ -46,7 +46,7 @@ struct PermissionView: View {
                         if granted { router.replace(with: .gallery) }
                     }
                 } label: {
-                    Text("Allow Camera")
+                    Text(AppStrings.allowCamera)
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.bordered)
@@ -56,23 +56,24 @@ struct PermissionView: View {
 
             Spacer()
 
-            Text("If you denied access, you can enable it later in Settings.")
+            Text(AppStrings.deniedHint)
                 .font(.footnote)
                 .foregroundStyle(.secondary)
                 .padding(.bottom, 18)
         }
         .background(AppColors.screenBackground.ignoresSafeArea())
         .navigationBarBackButtonHidden(true)
-        .alert("Permission Denied", isPresented: $viewModel.showDeniedAlert) {
-            Button("Settings") { viewModel.openSettings() }
-            Button("Cancel", role: .cancel) { }
+        .alert(AppStrings.permissionDeniedTitle, isPresented: $viewModel.showDeniedAlert) {
+            Button(AppStrings.settings) { viewModel.openSettings() }
+            Button(AppStrings.cancel, role: .cancel) { }
         } message: {
             switch viewModel.deniedType {
             case .camera:
-                Text("Camera access is denied. Please enable Camera access in Settings.")
+                Text(AppStrings.cameraDeniedMessage)
             case .photos:
-                Text("Photo Library access is denied. Please enable Photos access in Settings.")
+                Text(AppStrings.photosDeniedMessage)
             }
+        
         }
     }
 }
